@@ -1,0 +1,18 @@
+{
+    "contents" : "library(reshape2)\nlibrary(dplyr)\nlibrary(\"stringr\")\ntree <- read.csv(\"markers.csv\", header =TRUE)\ntree <- tbl_df(melt(tree))\nyears <- unique(str_sub(tree$variable, start = 2L))\n\nscientific_10 <- function(x) {\n    parse(text=gsub(\"e\", \" %*% 10^\", scientific_format()(x)))\n}\n\nlibrary(ggplot2)\nlibrary(grid)\ntheme_dens <- theme_minimal() +\n        theme(strip.text.x = element_text(vjust=1,size = 18),\n              #strip.background = element_rect(fill=\"white\",linetype=\"blank\"),\n              axis.title.x = element_text(vjust= -2,size = 16),\n              axis.title.y = element_text(vjust= 3,size = 16),\n              axis.text.x = element_text(size = 12),\n              axis.text.y = element_text(size = 12),\n              plot.margin = unit(c(2,2,2,2), \"cm\"), # less margin on down side\n              # axis.line = element_line(size=1),\n              # panel.border = element_blank() ,\n              panel.grid.major = element_blank(),\n              axis.line = element_line(color = 'black'),\n              panel.grid.minor = element_blank(),\n              panel.background = element_blank(),\n              # panel.border = element_blank(),\n              legend.text = element_text(size = 12),\n              legend.title = element_text(size = 12, face = \"plain\"))\n\nggplot(tree, aes(factor(variable), value)) +\n               geom_boxplot(na.rm=T) +\n               theme_dens +\n               # geom_point(position = position_jitter(width = 0.2), \n               # alpha = 0.7, size = 0.5, color = \"orange\") +\n               # scale_x_discrete(labels = years) +\n               xlab(\"Year\") +\n               scale_y_log10(limits = c(1, 10^6), breaks = c(1, 10, 100, 1000, 10000, 100000, 1000000),\n                             expand = c(0, 0)) +\n               scale_x_discrete(labels = seq(1986, 2014)[seq(1,length(seq(1986, 2014)), 5)],\n                                breaks = seq(1986, 2014)[seq(1,length(seq(1986, 2014)), 5)])\n               \n\ntree$year <- as.numeric(str_sub(tree$variable, start = 2L))\nplot(tree$year, log(tree$value))\n\nggplot(tree, aes(year, value)) +\n    geom_smooth(na.rm=T) + \n    \n    theme_dens +\n    # scale_x_discrete(labels = years) +\n    xlab(\"Year\") +\n    scale_y_log10(limits = c(1, 10^6), breaks = c(1, 10, 100, 1000, 10000, 100000, 1000000),\n                  expand = c(0, 0))\n",
+    "created" : 1424091503370.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "624870833",
+    "id" : "463EF709",
+    "lastKnownWriteTime" : 1424099331,
+    "path" : "C:/Users/Martin/Studium/projects/tree/boxplots.R",
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 12,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

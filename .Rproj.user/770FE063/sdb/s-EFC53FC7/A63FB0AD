@@ -1,0 +1,18 @@
+{
+    "contents" : "# permutation test for ophi_code data\nlibrary(MASS)\n\nophi_code <- read.csv(\"data/ophi_code.csv\", colClasses = c(rep(\"numeric\",2),rep(\"factor\",98)))\n# mod_code <- glm(day_falling ~., data = ophi_code)\n# code_aic <- stepAIC(mod_code, direction = \"backward\")\n# df_aic_code <- model.frame(code_aic)\n# based on permutation ---------------------------------------------------------\nrand_aic <- function(...) {\n\n        # randomization of allels according to probabilities\n        rand_allelfreq <- function(x) {\n                # x is a snp vector\n                y <- sample(x)  \n        }\n        # create new df\n        ophi_code_temp <- ophi_code\n        ophi_code_temp[3:ncol(ophi_code_temp)] <- as.data.frame(apply(ophi_code[3:ncol(ophi_code)],2, rand_allelfreq))\n        \n        # modelfit code\n        mod_code <- glm(day_falling ~., data = ophi_code_temp)\n        \n        # AIC backward stepwise \n        mod_aic_code <- stepAIC(mod_code, direction = \"backward\")\n        \n        # get final aic\n        final_aic <- summary(mod_aic_code)$aic\n        # get final r2\n        r2 <- ((summary(mod_aic_code)$null.deviance) - (summary(mod_aic_code)$deviance)) / (summary(mod_aic_code)$null.deviance)\n        # get final adj r2\n        npred <- length(summary(mod_aic_code)$contrasts)\n        nobs <- nrow(ophi_code)\n        adjr2 <- 1 - ((1 - r2^2) * (nobs - 1) / (nobs - npred - 1))\n        \n        out <- list(\"aic\" = final_aic, \"r2\" = r2, \"adjr2\" = adjr2)\n        \n}\n\n# parallel\nlibrary(parallel)\n\ncl <- makeCluster(detectCores()-1)\n#get library support needed to run the code\nclusterEvalQ(cl,library(MASS))\n\n#put objects in place that might be needed for the code\nclusterExport(cl, c(\"rand_aic\", \"ophi_code\"))\n\nall <- parLapply(cl, 1:5000, rand_aic)\n\nall_aic <- sapply(all, function(x) x$aic)\nall_r2 <- sapply(all, function(x) x$r2)\nall_adjr2 <- sapply(all, function(x) x$adjr2)\n\nwrite(all_aic, \"aics.txt\")\nwrite(all_r2, \"r2.txt\")\nwrite(all_adjr2, \"adjr2.txt\")\n\nstopCluster(cl)\n",
+    "created" : 1423478740808.000,
+    "dirty" : true,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "3142366953",
+    "id" : "A63FB0AD",
+    "lastKnownWriteTime" : 1422267833,
+    "path" : "C:/Users/Martin/Studium/projects/ophionotus/randomisation_test.R",
+    "project_path" : "randomisation_test.R",
+    "properties" : {
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

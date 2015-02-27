@@ -1,0 +1,18 @@
+{
+    "contents" : "# transform to ped format\nlibrary(stringr)\nraw <- read.csv(\"raw.csv\", row.names = 1, header = TRUE)[1:288, ]\nsnp_names <- read.csv(\"snp_names.csv\", header = FALSE)\nrow.names(raw) <- str_replace_all(row.names(raw), \"Ophi \", \"\")\nrow.names(raw)[14] <- 14\nnobs <- length(row.names(raw))\nnsnps <- length(names(raw))/2\n# PED file\nped_temp <- data.frame(\"FID\" = as.numeric(row.names(raw)), \"IID\" = as.numeric(row.names(raw)), \"PatID\" = rep(0, nobs),\n                     \"MatID\" = rep(0, nobs), \"Sex\" = rep(0, nobs), \"Phenotype\" = ophi_code$day_falling)\nped <- cbind(ped_temp, raw)\nwrite.table(ped, \"ophi.ped\", row.names = FALSE, col.names = FALSE)\n\n# MAP file\nmap <- data.frame(\"Chr\" = rep(0, nsnps), \"FID\" = snp_names, \"gendist\" = rep(0, nsnps), \"snppos\" = rep(9999, nsnps) )\nwrite.table(map, \"ophi.map\", row.names = FALSE)\n\n#phenotype\nophi_phen <- data.frame(\"FID\" = as.numeric(row.names(raw)), \"IID\" = as.numeric(row.names(raw)), \"Phenotype\" = ophi_code$day_falling)\nwrite.table(ophi_phen, \"ophi.phen\", row.names =FALSE, col.names = FALSE)\n\n# canditate vs. non-candidate\n\nophi_code_can <- ophi_code[1:65]\nophi_code_nocan <- ophi_code[c(1, 66:100)]\n\nmod1 <- glm(day_falling ~ ., data = ophi_code_can)\nmod2 <- glm(day_falling ~ ., data = ophi_code_nocan)\nsummary(mod1)\nsummary(mod2)\nsummary(anova(mod1, mod2))\n\n\n",
+    "created" : 1424705335409.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "3144626230",
+    "id" : "6454C0A8",
+    "lastKnownWriteTime" : 1424882809,
+    "path" : "C:/Users/Martin/Studium/projects/ophionotus/format_files.R",
+    "project_path" : "format_files.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 16,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

@@ -1,0 +1,18 @@
+{
+    "contents" : "# visualizing the snps\n\nsource(\"multiplot.R\")\nlibrary(ggplot2)\nlibrary(grid)\n\nnames_code_org <- read.csv(\"names_code_org.csv\",header = FALSE, stringsAsFactors = FALSE)[1]\nnames(df_aic_code)[2:50] <- names_code_org[,1]\nget_all_plots <- function(model_df) {     \n        all_plots <- list()\n        for(i in 2:ncol(model_df)) {       \n        snp <- names(model_df)[i]\n        \n        p <- ggplot(model_df, aes_string(x = snp, y = \"day_falling\")) +\n                theme_bw(base_size = 10) +\n                geom_boxplot() +\n                           # fill = NA, shape = 21) +\n                stat_summary(fun.y = \"mean\", geom = \"text\", \n                             label=\"----\", size= 5, color= \"blue\")  +\n                geom_point(position = position_jitter(width = 0.2), \n                           alpha = 0.7, size = 0.5, color = \"orange\") +\n                theme(plot.margin=unit(c(0.1,0.1,0.1,0.1), \"cm\"),\n                      axis.title.y = element_blank())\n                \n                #stat_summary(fun.y=mean, colour=\"darkred\", geom=\"point\", \n                           #shape=18, size=3,show_guide = FALSE)\n        nam <- paste(\"plot_\", i, sep = \"\")\n        # assign(nam, p)\n        all_plots[[i-1]] <- p\n        }\n        return(all_plots)\n}\n\n# transform dfs for het and add to categorical\ndf_add <- df_aic_add\ndf_add[2:ncol(df_add)] <- lapply(df_aic_add[2:ncol(df_add)], as.factor)\ndf_het <- df_aic_het\ndf_het[2:ncol(df_het)] <- lapply(df_aic_het[2:ncol(df_het)], as.factor)\n\n\nall_plots <- get_all_plots(df_aic_code)\n\nmultiplot(plotlist = all_plots[1:49], cols = 7)\n\nggsave(filename = \"Boxplots.jpg\", width = 7, height = 5, units = \"in\")  \nggsave(filename = \"Boxplots.pdf\", width = 7, height = 5, units = \"in\")  \n\nmultiplot(plotlist = all_plots[(length(all_plots)/2+1):length(all_plots)], cols = 4)",
+    "created" : 1423826094273.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "2794283858",
+    "id" : "6D1555DE",
+    "lastKnownWriteTime" : 1424091489,
+    "path" : "C:/Users/Martin/Studium/projects/ophionotus/visualize_snps.R",
+    "project_path" : "visualize_snps.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

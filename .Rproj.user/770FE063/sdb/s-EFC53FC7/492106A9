@@ -1,0 +1,18 @@
+{
+    "contents" : "# mean model fits for an increasing number of subsampling\n\n# non-parametric bootstrap to assess stability of final version\n\n# permutation test for ophi_code data\nlibrary(MASS)\nlibrary(plyr)\nophi_code <- read.csv(\"data/ophi_code.csv\", colClasses = c(rep(\"numeric\",2),rep(\"factor\",98)))\n# mod_code <- glm(day_falling ~., data = ophi_code)\n# code_aic <- stepAIC(mod_code, direction = \"backward\")\n# df_aic_code <- model.frame(code_aic)\n# based on permutation ---------------------------------------------------------\n\nsubsamp_seq <- function(...) {\n        \n        bootstrap_ophi <- function(nsub, ...) {\n                # randomization of allels according to probabilities\n                ophi_code_temp <- (ophi_code[sample(nrow(ophi_code), size = round(nrow(ophi_code) * nsub)), ])\n                \n                check_contrasts <- function(snp) {\n                        if (length(unique(snp)) == 1) {\n                                snp <- 0\n                                return(snp)\n                        }\n                        snp <- 1\n                }\n                \n                f_levels <- unlist(lapply(ophi_code_temp, check_contrasts))\n                \n                ophi <- ophi_code_temp[f_levels != 0]\n                \n                # modelfit code\n                mod_code <- glm(day_falling ~., data = ophi)\n                \n                # AIC backward stepwise \n                mod_aic_code <- stepAIC(mod_code, direction = \"backward\")\n                \n                # model frame\n                df <- model.frame(mod_aic_code)\n                \n                # get final aic\n                final_aic <- summary(mod_aic_code)$aic\n                # get deviance\n                null_dev <- summary(mod_aic_code)$null.deviance\n                res_dev <- summary(mod_aic_code)$deviance\n                # get final r2\n                r2 <- ((summary(mod_aic_code)$null.deviance) - (summary(mod_aic_code)$deviance)) / (summary(mod_aic_code)$null.deviance)\n                \n                # get final adj r2\n                npred <- length(summary(mod_aic_code)$contrasts)\n                nobs <- nrow(ophi)\n                adjr2 <- 1 - ((1 - r2^2) * (nobs - 1) / (nobs - npred - 1))\n                \n                # null\n                mod_out <- list(nsub = nsub, aic = final_aic, null_dev = null_dev, res_dev = res_dev,\n                                r2 = r2, adjr2 = adjr2, npred = npred, nobs = nobs)\n                out <- data.frame(mod_out)\n        }\n        subsampled <- lapply(c(0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95,0.97), bootstrap_ophi)\n}\n\n# parallel\nlibrary(parallel)\n\ncl <- makeCluster(detectCores())\n#get library support needed to run the code\nclusterEvalQ(cl,library(MASS))\n\n#put objects in place that might be needed for the code\nclusterExport(cl, c(\"subsamp_seq\", \"ophi_code\"))\n\nall <- parLapply(cl, 1:2, subsamp_seq)\n# combining into data.frame\nresults <- ldply(unlist(all, recursive = FALSE))\n\nwrite.csv(results, \"results.csv\")\n\nstopCluster(cl)\n",
+    "created" : 1423478585954.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "2640783624",
+    "id" : "492106A9",
+    "lastKnownWriteTime" : 1423561988,
+    "path" : "C:/Users/Martin/Studium/projects/ophionotus/subsample_sequence.R",
+    "project_path" : "subsample_sequence.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

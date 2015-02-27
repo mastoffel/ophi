@@ -1,0 +1,13 @@
+{
+    "path" : "C:/Users/Martin/Studium/projects/ophionotus",
+    "sortOrder" : [
+        {
+            "ascending" : false,
+            "columnIndex" : 4
+        },
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}
